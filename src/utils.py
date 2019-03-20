@@ -19,19 +19,18 @@ def padtomaxlen(mel, wav):
             wav_idx = len(wav) - args.wav_time_step
         mel = mel[rn: rn + args.mel_time_step]
         wav = wav[wav_idx: wav_idx + args.wav_time_step]
-
     if mel.shape[0] < args.mel_time_step:
-        mel_pad = np.zeros([args.mel_time_step - mel.shape[0]] + list(mel.shape[1:])) - args.clip_to_value
+        mel_pad = np.zeros([args.mel_time_step - mel.shape[0]] +
+                           list(mel.shape[1:])) - args.clip_to_value
         mel = np.concatenate([mel, mel_pad], axis=0)
     else:
         mel = mel[: args.mel_time_step]
-
     if wav.shape[0] < args.wav_time_step:
-        wav_pad = np.zeros([args.wav_time_step - wav.shape[0]] + list(wav.shape[1:]))
+        wav_pad = np.zeros(
+            [args.wav_time_step - wav.shape[0]] + list(wav.shape[1:]))
         wav = np.concatenate([wav, wav_pad], axis=0)
     else:
         wav = wav[: args.wav_time_step]
-
     assert mel.shape[0] == args.mel_time_step
     assert wav.shape[0] == args.wav_time_step
     return mel, wav

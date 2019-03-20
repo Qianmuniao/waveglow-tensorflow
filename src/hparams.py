@@ -21,7 +21,7 @@ parser.add_argument('--sample_num', dest='sample_num', type=int, default=5, help
 parser.add_argument('--valsplit', dest='valsplit', type=float, default=0.9, help='Portion for training examples, others for validation')
 parser.add_argument('--num_proc', dest='num_proc', type=int, default=None, help='Number of process to spawn for data loader')
 #GPU
-parser.add_argument('--gpu_fraction', dest='gpu_fraction', type=float, default=0.80, help='Fraction of GPU Memory to use')
+parser.add_argument('--gpu_fraction', dest='gpu_fraction', type=float, default=0.82, help='Fraction of GPU Memory to use')
 #parser.add_argument('--use_fp16', dest='use_fp16', default=False, action='store_false', help='True if use float16 for tensorcore acceleration')
 #parser.add_argument('--fp16_scale', dest='fp16_scale', type=float, default=128, help='Scaling factor for fp16 computation')
 #Normalization
@@ -31,22 +31,25 @@ parser.add_argument('--use_weight_norm', dest='use_weight_norm', default=False, 
 parser.add_argument('--do_infer', dest='is_training', default=False, action='store_false', help='Default to training mode, do inference if --do_infer is specified')
 parser.add_argument('--infer_mel_dir', dest='infer_mel_dir', default='C:/data/tts/train_split_0.txt', help='Path to inference numpy files of mel spectrogram')
 parser.add_argument('--infer_path', dest='infer_path', default='E:/tmp/waveglow/inference', help='Path to output inference wavs')
+parser.add_argument('--do_infer', dest='is_training', default=True, action='store_false', help='Default to training mode, do inference if --do_infer is specified')
+parser.add_argument('--infer_mel_dir', dest='infer_mel_dir', default='/home/wsj/waveglow/training_mels', help='Path to inference numpy files of mel spectrogram')
+parser.add_argument('--infer_path', dest='infer_path', default='/home/wsj/waveglow/inference', help='Path to output inference wavs')
 
 ##Sampling##
 parser.add_argument('--truncate_sample', dest='truncate_sample', default=False, action='store_true', help='Truncate the infer input mels to truncate_step due to GPU memory consideration or not')
 parser.add_argument('--truncate_step', dest='truncate_step', type=float, default=384, help='Truncate the infer input mels to truncate_step due to GPU memory consideration')
 
 ##Input Path##
-parser.add_argument('--metadata_dir', dest='metadata_dir', default='D:/data/tts/train2.txt', help='Path to metadata.csv')
+parser.add_argument('--metadata_dir', dest='metadata_dir', default='/tts/train_split_0.txt', help='Path to metadata.csv')
 parser.add_argument('--dataset_dir', dest='dataset_dir', default='/LJSpeech-1.1/wavs', help='Path to audio file for preprocessing dataset')
 parser.add_argument('--mel_dir', dest='mel_dir', default='/waveglow/training_mels', help='Path to input mel spectrogram (Output directory for processing dataset)')
 parser.add_argument('--wav_dir', dest='wav_dir', default='/waveglow/training_wavs', help='Path to input audio file for training (Output directory for processing dataset)')
 
 ##Output Path##
-parser.add_argument('--saving_path', dest='saving_path', default='D:/logdir/wg1/model', help='Path to save model if specified')
-parser.add_argument('--loading_path', dest='loading_path', default='D:/logdir/wg1/model', help='Path to load model if specified')
-parser.add_argument('--sampling_path', dest='sampling_path', default='D:/logdir/wg1/samples', help='Path to save samples if specified')
-parser.add_argument('--summary_dir', dest='summary_dir', default='D:/logdir/wg1/summary', help='Path to save summaries')
+parser.add_argument('--saving_path', dest='saving_path', default='/home/wsj/logdir/wg1/model', help='Path to save model if specified')
+parser.add_argument('--loading_path', dest='loading_path', default='/home/wsj/logdir/wg1/model', help='Path to load model if specified')
+parser.add_argument('--sampling_path', dest='sampling_path', default='/home/wsj/logdir/wg1/samples', help='Path to save samples if specified')
+parser.add_argument('--summary_dir', dest='summary_dir', default='/home/wsj/logdir/wg1/summary', help='Path to save summaries')
 
 ##Audio Processing Params##
 #STFT
