@@ -6,6 +6,7 @@ from hparams import args
 from utils import *
 from module import *
 from ops import *
+from feeder import Feeder
 
 
 class WaveGlow():
@@ -66,17 +67,18 @@ class WaveGlow():
 ########INFERENCE#########
 
     def train(self):
-        self.data_generator = multiproc_reader(500)
-        self.validation_data_generator = multiproc_reader_val(
-            args.sample_num * 5)
+        coord = tf.train.Coordinator()
+
+        self.data_generator = Feeder(coord, args)
+        self.validation_data_generator = self.data_generator
         self.lr = tf.train.exponential_decay(args.lr,
                                              self.global_step,
                                              args.lr_decay_steps,
                                              args.lr_decay_rate)
+        self.lr = tf.minimum(tf.maximum(self.lr, 0.0000001), 0.001)
         self.optimizer = tf.train.AdamOptimizer(learning_rate=self.lr)
-        self.grad = self.optimizer.compute_gradients(self.loss)#, var_list=self.t_vars)
-        self.op = self.optimizer.apply_gradients(
-            self.grad, global_step=self.global_step)
+        self.grad = self.optimizer.compute_gradients(self.loss, var_list=self.t_vars)
+        self.op = self.optimizer.apply_gradients(self.grad, global_step=self.global_step)
         varset = list(set(tf.global_variables()) | set(tf.local_variables()))
         self.saver = tf.train.Saver(var_list=varset, max_to_keep=3)
         num_batch = self.data_generator.n_examples // args.batch_size
@@ -102,9 +104,10 @@ class WaveGlow():
             self.merged = tf.summary.merge(
                 [self.s_logdet_loss, self.s_logs_loss, self.s_prior_loss, self.s_loss])
 
-        self.procs = self.data_generator.start_enqueue()
-        self.val_procs = self.validation_data_generator.start_enqueue()
-        self.procs += self.val_procs
+        #self.procs = self.data_generator.start_enqueue()
+        #self.val_procs = self.validation_data_generator.start_enqueue()
+        #self.procs += self.val_procs
+        self.data_generator.start(self.sess)
 
         self.sample(0)
         try:
@@ -116,10 +119,10 @@ class WaveGlow():
                               "LogDet Loss",
                               "Prior Loss"]
                 buffers = buff(loss_names)
-                for batch in tqdm(range(num_batch),ncols=100):
+                for batch in tqdm(range(num_batch),ncols=50):
                     input_data = self.data_generator.dequeue()
-                    feed_dict = {a: b for a, b in zip(
-                        self.placeholders, input_data)}
+                    #feed_dict = {a: b for a, b in zip(self.placeholders, input_data)}
+                    feed_dict = dict(zip(self.placeholders, input_data))
                     _, loss, logs_loss, logdet_loss, prior_loss, summary, step = self.sess.run([self.op,
                                                                                                 self.loss,
                                                                                                 self.logs_loss,
@@ -146,8 +149,10 @@ class WaveGlow():
         except:
             traceback.print_exc()
         finally:
+            '''
             for x in self.procs:
                 x.terminate()
+            '''
 
     def save(self, epoch):
         name = 'Model_Epoch_' + str(epoch)
@@ -170,7 +175,7 @@ class WaveGlow():
     def sample(self, epoch):
         print("Sampling to %r" % args.sampling_path)
         try:
-            for i in tqdm(range(args.sample_num),ncols=100):
+            for i in tqdm(range(args.sample_num),ncols=50):
                 name = 'Epoch_%r-%r.wav' % (epoch, i+1)
                 outpath = os.path.join(args.sampling_path, name)
                 print('Sampling to %r ...' % outpath)
@@ -183,41 +188,11 @@ class WaveGlow():
         except KeyboardInterrupt:
             print("KeyboardInterrupt")
         except:
+            '''
             traceback.print_exc()
             for x in self.procs:
                 x.terminate()
-
-    def infer(self):
-        self.infer_data_generator = multiproc_reader_infer(100)
-        self.saver = tf.train.Saver()
-        self.procs = self.infer_data_generator.start_enqueue()
-        print("Performing Inference from %r" % args.infer_mel_dir)
-        try:
-            if self.load():
-                step = self.global_step.eval()
-            else:
-                print('Error loading model at inference state!')
-                raise RuntimeError
-            i = 0
-            while self.infer_data_generator.alive:
-                name = 'Infer_Step_%r-%r.wav' % (step, i+1)
-                outpath = os.path.join(args.infer_path, name)
-                print('Synthesizing to %r ...' % outpath)
-                mels = self.infer_data_generator.dequeue()
-                output = self.sess.run(
-                    self.output, feed_dict={self.mels: [mels]})
-                output = np.transpose(output[0])
-                output = np.reshape(output, [-1])
-                writewav(outpath, output)
-                i += 1
-        except KeyboardInterrupt:
-            print("KeyboardInterrupt")
-        except:
-            traceback.print_exc()
-        finally:
-            for x in self.procs:
-                x.terminate()
-
+            '''
     def gate_add_summary(self, summary, step):
         try:
             self.writer.add_summary(summary, step)

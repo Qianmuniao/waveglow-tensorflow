@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 from hparams import args
-from model import WaveGlow
+from model2 import WaveGlow
 
 def main(_):
    if args.saving_path:
