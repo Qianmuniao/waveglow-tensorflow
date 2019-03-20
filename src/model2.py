@@ -1,7 +1,6 @@
 import traceback
 
 from feeder import Feeder, mel_iter
-from hparams import args
 from module import *
 from ops import *
 from tqdm import tqdm
@@ -185,7 +184,7 @@ class WaveGlow():
                 print('Error loading model at inference state!')
                 raise RuntimeError
             i = 0
-            for mels in mel_iter(args.infer_mel_dir,size=1):
+            for mels in mel_iter(args.infer_mel_dir, size=1):
                 outputs = self.sess.run(self.output, feed_dict={self.mels: mels})
                 for output in outputs:
                     name = 'Infer_Step_%r-%r.wav' % (step, i + 1)
