@@ -29,10 +29,7 @@ parser.add_argument('--use_weight_norm', dest='use_weight_norm', default=False, 
 
 ##Inference##
 parser.add_argument('--do_infer', dest='is_training', default=False, action='store_false', help='Default to training mode, do inference if --do_infer is specified')
-parser.add_argument('--infer_mel_dir', dest='infer_mel_dir', default='C:/data/tts/train_split_0.txt', help='Path to inference numpy files of mel spectrogram')
-parser.add_argument('--infer_path', dest='infer_path', default='E:/tmp/waveglow/inference', help='Path to output inference wavs')
-parser.add_argument('--do_infer', dest='is_training', default=True, action='store_false', help='Default to training mode, do inference if --do_infer is specified')
-parser.add_argument('--infer_mel_dir', dest='infer_mel_dir', default='/home/wsj/waveglow/training_mels', help='Path to inference numpy files of mel spectrogram')
+parser.add_argument('--infer_mel_dir', dest='infer_mel_dir', default='/tts/train_split_0.txt', help='Path to inference numpy files of mel spectrogram')
 parser.add_argument('--infer_path', dest='infer_path', default='/home/wsj/waveglow/inference', help='Path to output inference wavs')
 
 ##Sampling##
